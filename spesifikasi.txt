@@ -1,0 +1,671 @@
+Spesifikasi Aplikasi 
+Berikut adalah spesifikasi yang harus diimplementasi: 
+1. Auth 
+a. Login 
+● Pada awalnya, pengguna aplikasi harus login terlebih dahulu sebelum bisa 
+menggunakan fitur yang ada di aplikasi 
+● Setelah login, endpoint akan memberikan token sebagai tanda login berhasil. 
+Token akan digunakan untuk mengakses endpoint lain 
+● Cara penyimpanan token dibebaskan, pastikan kalian menerapkan best 
+practice dalam penyimpanan di Android. Silahkan eksplorasi best practice untuk 
+menyimpan token pengguna / sensitive information pada aplikasi Android.  
+● Saat user melakukan sebuah request ke server dengan token yang expired, 
+arahkan user tersebut kembali ke halaman login ini. Token ditandai dengan 
+expired jika response dari server adalah Unauthorized (status code 409). 
+● Login dapat dilakukan dengan menembak endpoint POST /api/login 
+● Request body untuk login berbentuk JSON dengan format: 
+{ 
+} 
+"email": "{NIM}@std.stei.itb.ac.id",  
+"password": "{NIM}" 
+b. Logout - - 
+Pengguna dapat melakukan logout dari aplikasi 
+Logout dapat dilakukan di halaman Profile 
+- - 
+Setelah logout, pengguna diarahkan ke halaman Login 
+Jika pengguna membuka aplikasi setelah logout dan keluar dari aplikasi, maka 
+pengguna akan berada pada halaman Login. 
+2. Header & Navbar - - - - 
+Terdapat tiga navigation menu di bagian bawah layar (bottom navbar), yaitu 
+Home, Map, dan Families. 
+Jika berada di menu tertentu, berikan cue pada icon menu tersebut, serta 
+header-nya berubah menyesuaikan menu tersebut. 
+Di kanan bawah terdapat tombol + untuk mengarahkan ke form Create Family. 
+Di kanan atas terdapat avatar pengguna yang berfungsi sebagai tombol menuju 
+halaman Profile. Klik avatar akan mengarahkan ke halaman Profile. 
+3. Home 
+Setelah user berhasil login, halaman utama yang akan dibuka adalah halaman Home. 
+Halaman ini akan berisi 2 komponen utama, yaitu: 
+a. My Families - Fitur ini akan menampilkan daftar family yang sudah dimasuki oleh 
+pengguna. - Setiap item menampilkan nama family beserta daftar member-nya. - Jika salah satu family ditekan, pengguna akan diarahkan ke halaman 
+Detail Family. - Gunakan API endpoint GET /api/me/families untuk mendapatkan semua 
+family dari pengguna sekarang. 
+b. Discover Families - Di bawah My Families, terdapat daftar random family yang dapat 
+dimasuki oleh pengguna. Backend server akan mengembalikan 5 family 
+secara random. 
+- Setiap item family menampilkan nama family beserta daftar member-nya. 
+Agar responsive, jika member lebih dari 3, diperbolehkan untuk 
+mengtruncate tampilannya. - Jika salah satu family ditekan, pengguna akan diarahkan ke halaman 
+Detail Family (4b). - Gunakan API endpoint GET /api/families/discover 
+4. Families 
+a. Create 
+● Pengguna dapat membuat family baru melalui form Create Family. 
+● Form berisi field untuk memasukkan nama family dan memilih icon untuk 
+family tersebut. Icon bisa didapatkan pada url berikut. 
+○ https://mad.labpro.hmif.dev/assets/family_icon_1.png 
+○ https://mad.labpro.hmif.dev/assets/family_icon_2.png 
+○ https://mad.labpro.hmif.dev/assets/family_icon_3.png 
+○ https://mad.labpro.hmif.dev/assets/family_icon_4.png 
+○ https://mad.labpro.hmif.dev/assets/family_icon_5.png 
+○ https://mad.labpro.hmif.dev/assets/family_icon_6.png 
+○ https://mad.labpro.hmif.dev/assets/family_icon_7.png 
+○ https://mad.labpro.hmif.dev/assets/family_icon_8.png 
+● Untuk membuat family dapat dengan menembak endpoint POST 
+/api/families dengan mengirimkan nama family dan url icon. Server 
+hanya akan menerima url icon di atas. 
+● Setelah family berhasil dibuat, pengguna diarahkan ke halaman Detail 
+Family dari family yang baru dibuat. Pengguna juga otomatis bergabung 
+ke dalam family tersebut. 
+● Family code (6 karakter) akan digenerate secara otomatis oleh server. 
+b. Detail 
+● Menampilkan informasi detail sebuah family yaitu nama family tersebut 
+beserta daftar anggota family dengan nama dan email masing-masing. 
+● Terdapat tombol Join (jika belum bergabung) atau Leave (jika sudah 
+bergabung). 
+● Jika sudah bergabung, pengguna dapat melihat family code dan dapat 
+mengklik tombol untuk mengcopy code tersebut. 
+● Gunakan API endpoint GET /api/families/:familyId untuk mendapatkan 
+detail family. 
+c. Join 
+● Saat pengguna mengklik tombol join pada halaman detail, akan muncul 
+Pop Up untuk memasukkan family code (6 karakter). 
+● Join family dilakukan melalui endpoint POST /api/families/join yang 
+menerima payload berupa family id dan code. 
+d. Leave 
+● Jika pengguna keluar dari family, akan ada pop up konfirmasi terlebih 
+dahulu. 
+● Leave family dilakukan dengan menembak endpoint POST 
+/api/families/leave. 
+e. Pinned Family 
+● Setiap item family dalam daftar memiliki tombol pin. Pengguna dapat 
+menekan tombol ini untuk menandai family sebagai pinned. 
+● Jika tombol pin ditekan kembali pada family yang sudah dipin, maka 
+family tersebut akan dihapus dari daftar pin. 
+● Untuk penyimpanan pin ini wajib disimpan secara lokal menggunakan 
+SQLite. Disarankan menggunakan kakas Room Database. 
+● Untuk mendapatkan semua family, tembak API endpoint GET 
+/api/families 
+● Perhatikan bahwa terdapat kemungkinan bahwa jumlah families bisa 
+menjadi sangat banyak. Diperbolehkan untuk implementasi client side 
+pagination agar lebih ringan, namun tidak diwajibkan. Mohon untuk 
+menggunakan backend server dengan bijak. Jika terdapat terlalu banyak 
+family, maka akan dihapus tanpa pemberitahuan. Gunakan local server 
+jika tidak ingin terganggu dengan pengguna lain. 
+f. Filter 
+● Terdapat filter untuk memfilter daftar family. 
+● All digunakan untuk menampilkan semua family. 
+● My families hanya menampilkan family pengguna. Pastikan menangani 
+family yang dipin dengan baik. 
+● Manfaatkan API GET /api/families dan  GET /api/me/families 
+5. Map 
+a. Map & GPS 
+● Halaman ini menampilkan peta yang dapat digeser (pan) dan 
+diperbesar/diperkecil (zoom). 
+● Library/metode yang digunakan untuk menampilkan map dibebaskan, 
+disarankan untuk tidak menggunakan library yang membutuhkan billing 
+(namun tetap boleh). Beberapa library yang dapat digunakan : osmdroid, 
+maplibre, MapTiler 
+● Aplikasi harus meminta izin kepada pengguna untuk mengakses lokasi 
+GPS. 
+● Setelah izin diberikan, map harus menampilkan sebuah pin yang 
+menandakan titik lokasi pengguna saat ini. 
+b. Websocket 
+● Pertukaran data lokasi antar pengguna harus menggunakan WebSocket. 
+● Aplikasi harus secara berkala mengirimkan koordinat lokasi terkini dari 
+pengguna tersebut ke server melalui websocket. 
+● Pada saat yang bersamaan, aplikasi harus bisa menerima data terupdate 
+dari anggota family yang lain yang di broadcast oleh server. Posisi pin 
+pengguna lain di peta harus bergerak secara dinamis sesuai dengan titik 
+koordinat baru yang diterima tanpa perlu melakukan refresh halaman. 
+● Jika pengguna tidak mengirimkan posisinya setelah 5 detik, maka 
+pengguna tersebut hilang dari map dan dianggap offline. 
+● Lihat websocket contract 
+c. Phone Orientation  
+● Pin lokasi milik current user harus memiliki indikator panah yang 
+menandakan arah smartphone dihadapkan. Kirimkan ini juga dengan 
+websocket. 
+d. User Info 
+● Jika pengguna menekan salah satu pin di peta, aplikasi akan 
+menampilkan informasi yang berisi informasi detail pengguna tersebut, 
+minimal berisi nama, email, lokasi, dan, baterai smartphone 
+pengguna. Informasi ini bisa didapatkan dengan websocket. 
+6. Profile - 
+Halaman Profile menampilkan profile avatar (huruf pertama dari nama 
+pengguna), nama, dan email pengguna. 
+- - - - 
+Informasi ini bisa didapatkan dengan menembak API endpoint GET /api/me 
+Terdapat tombol untuk Sign Out dan akan dipindahkan ke halaman login. 
+Jika pengguna mengklik icon edit, maka pengguna dapat mengedit nama 
+pengguna dengan tampilan form dari bottom sheet. 
+Gunakan API endpoint PATCH /api/me untuk mengedit nama pengguna. 
+7. Network Sensing - 
+Aplikasi dapat mengecek apakah kondisi perangkat saat ini tersambung 
+dengan internet, baik melalui data seluler maupun WiFi. - - - - 
+Saat perangkat terputus dari koneksi internet, keluarkan sebuah Pop Up yang 
+menunjukkan bahwa saat ini perangkat tidak terhubung dengan internet. Ketika 
+sudah terhubung kembali, Pop Up tersebut hilang tanpa perlu interaksi dari 
+pengguna. 
+Walaupun tanpa internet, aplikasi tetap dapat dibuka, namun tidak bisa 
+melakukan permintaan dan penarikan data dari server. 
+Jika ada halaman yang memerlukan data dari server namun saat itu koneksi 
+internet terputus, munculkan juga Pop Up tersebut. 
+Pop up ini dapat muncul di semua halaman. 
+8. OpenAPI - - - 
+Buatlah spesifikasi OpenAPI untuk setiap kontrak REST API (tidak termasuk 
+Websocket). 
+Gunakan format .yml untuk spesifikasinya. 
+Buat dalam file openapi.yml dan di letakkan pada root repository. 
+Spesifikasi Bonus 
+Berikut adalah spesifikasi bonus yang optional untuk diimplementasi: 
+1. Search Family 
+Setelah beberapa waktu menggunakan aplikasi untuk memantau anggota 
+keluarga, pengguna menyadari bahwa jumlah family yang tersedia semakin banyak. 
+Hal ini membuat pengguna kesulitan menemukan family tertentu ketika harus 
+melakukan scrolling panjang pada daftar family. Untuk mempermudah pencarian, 
+ditambahkan fitur Search Family yang memungkinkan pengguna mencari family 
+berdasarkan nama. 
+Spesifikasi fitur: 
+● Di bagian atas halaman Families terdapat search bar untuk melakukan pencarian 
+family berdasarkan nama. 
+● Awalnya, search bar dalam keadaan kosong dan seluruh family ditampilkan 
+tanpa filter. 
+● Ketika pengguna mulai mengetik pada search bar, daftar family akan difilter 
+berdasarkan nama family yang sesuai dengan masukan pengguna. 
+2. Internet status 
+Pada map, pengguna juga dapat menampilkan status internet pengguna lain. 
+Status ini ditampilkan pada detail pengguna saat mengklik pengguna lain di map. 
+Kirimkan informasi ini melalui websocket. Terdapat 2 kemungkinan nilai yaitu "wifi" atau 
+"mobile". 
+3. Livestreaming 
+Dalam beberapa situasi tertentu, anggota family mungkin ingin berbagi kondisi 
+secara langsung kepada anggota lainnya, misalnya ketika sedang berada di lokasi baru 
+atau ingin menunjukkan keadaan sekitar secara real-time. Oleh karena itu, 
+ditambahkan fitur Livestreaming yang memungkinkan pengguna melakukan siaran 
+video secara langsung kepada anggota family lainnya. 
+Spesifikasi fitur: 
+● Pengguna dapat memulai livestreaming kepada anggota family. 
+● Anggota family lain dapat melihat livestream yang sedang berlangsung. 
+● Detail implementasi, teknologi yang digunakan, serta mekanisme pengiriman 
+video dibebaskan. 
+● Mahasiswa diperbolehkan menggunakan library atau teknologi pihak ketiga 
+yang mendukung implementasi livestreaming serta mengimplementasikan 
+backend server sendiri. Sertakan link ke repositorynya jika mengimplmentasi 
+backend server sendiri. 
+4. Mark Favorite Location 
+Terkadang terdapat lokasi tertentu yang sering dikunjungi oleh anggota family, 
+seperti rumah, sekolah, atau tempat kerja. Untuk mempermudah identifikasi 
+lokasi-lokasi penting tersebut, pengguna dapat menandai suatu lokasi sebagai Favorite 
+Location. 
+Spesifikasi fitur: 
+● Pengguna dapat menandai suatu lokasi pada Map sebagai Favorite Location. 
+● Favorite Location yang ditandai akan muncul pada peta sebagai penanda 
+khusus. 
+● Detail tampilan penanda atau mekanisme penandaan lokasi dibebaskan kepada 
+mahasiswa. 
+● Simpan informasi ini di local. 
+5. Accessibility Testing 
+Accessibility Scanner adalah kakas yang dikembangkan oleh Google dan 
+digunakan untuk memindai antarmuka pengguna aplikasi untuk memberikan 
+rekomendasi terkait cara meningkatkan aksesibilitas aplikasi. Accessibility Scanner 
+memungkinkan siapa saja, tidak hanya developer, untuk dapat dengan cepat dan 
+mudah mengidentifikasi berbagai peningkatan aksesibilitas umum; misalnya, 
+memperbesar target sentuh kecil, meningkatkan kontras untuk teks dan gambar, serta 
+menyediakan deskripsi konten untuk elemen grafis yang tidak berlabel. 
+Dengan meningkatkan aksesibilitas aplikasi, pengembang dapat menjangkau 
+audiens yang lebih luas dan memberikan pengalaman yang lebih inklusif, terutama bagi 
+pengguna penyandang disabilitas. Peningkatan aksesibilitas sering kali mengarah pada 
+peningkatan kepuasan pengguna, rating aplikasi, dan retensi pengguna. 
+Kerjakan bonus ini setelah aplikasi kalian selesai dikembangkan. Tampilkan 
+pada README halaman suggestion sebelum aplikasi kalian diperbaiki seperti gambar 
+dibawah ini. 
+Setelah itu, lakukan perbaikan berdasarkan suggestion yang diberikan hingga 
+tidak ada lagi suggestion yang ada. Tampilkan pada README bukti tangkapan 
+layarnya. Selain itu, dokumentasikan juga perbaikan apa saja yang sudah kalian 
+lakukan. 
+Batasan Aplikasi 
+Berikut adalah batasan implementasi dari aplikasi: 
+1. Referensi daftar halaman dapat dilihat melalui Figma. Informasi yang ditampilkan 
+minimal sesuai dengan yang ada di Figma, tetapi boleh ditambah dan diubah. 
+Halaman tidak harus persis seperti figma. Silahkan berkreasi sendiri. 
+2. Minimum SDK: Android 11 (API Level 30) 
+3. Target SDK: Android 15 (API Level 35) 
+4. Compile SDK: Android 15 (API Level 35) 
+5. Untuk halaman-halaman berikut ini, pilih minimal 4 halaman untuk 
+dikembangkan dengan Android XML: Auth, Home, Map, Profile, Families, Create 
+Families, Family Detail. Sisanya diperbolehkan menggunakan Jetpack Compose 
+ataupun juga menggunakan XML.  
+6. Error handling: 
+○ Pastikan aplikasi tidak crash dalam kondisi error yang dapat diprediksi. 
+○ Tampilkan pesan error yang informatif kepada pengguna jika terjadi 
+kesalahan. 
+○ Logging error yang baik harus dilakukan, misalnya dengan Logcat. 
+○ Pastikan error handling tetap mengikuti prinsip UX yang baik, seperti 
+tidak menampilkan pesan teknis kepada pengguna umum. 
+Pengerjaan 
+1. Kelompok - Tugas milestone 1 dikerjakan secara berkelompok. - Kelompok dibebaskan kepada mahasiswa dan TIDAK boleh lintas kelas. - Jumlah anggota kelompok adalah 3 - 4 orang. Silakan isi pada sheets ini. - Tugas besar 1 wajib dikerjakan menggunakan Kotlin-Android Native. BUKAN 
+Java dan BUKAN framework lain seperti Flutter, React Native, dll. Diwajibkan 
+menggunakan Android XML untuk 4 halaman dan disarankan menggunakan 
+Jetpack Compose untuk halaman lainnya namun tidak diwajibkan. - Pastikan aplikasi bisa berjalan. Jika tidak berjalan sama sekali, asisten tidak bisa 
+menilai apapun. 
+- Disediakan backend server dari asisten dan wajib menggunakan backend 
+yang telah disediakan. Dilarang untuk menyerang server ini. Gunakan dengan 
+bijak. Jumlah family yang dapat dibuat tidak dibatasi. Jangan membuat family 
+terlalu banyak. Jika terlalu banyak, family akan menghapus tanpa 
+pemberitahuan. Jika terjadi masalah pada server backend tersebut, bisa juga 
+dengan menggunakan local server sendiri. Berikut ini repositorynya 
+https://github.com/Labpro-22/if3210-backend-2026  - Buat release pada GitHub untuk mengumpulkan. Format release bebas, yang 
+dipakai untuk menilai adalah release paling terakhir. Tidak perlu menyertakan 
+APK yang telah di-build, cukup release tag yang ingin dikumpulkan. Pastikan isi 
+dari tag tidak kosong dan berisikan kode yang kalian ingin kumpulkan. - Tidak diperkenankan menggunakan Generative AI untuk menggenerate code. 
+2. Repository - - 
+Pengerjaan dilakukan pada github classroom berikut. 
+Silakan buat tim dengan format KXX-YYY. Tim hanya perlu dibuat 1x saja. - - - 
+XX adalah nomor kelas. 
+YYY adalah kode kelompok. 
+Untuk member lainnya silakan join ke tim yang telah dibuat. - 
+Lengkapi repository dengan README yang minimal berisi: - - - - - 
+Deskripsi aplikasi. 
+Library yang digunakan. 
+Screenshot aplikasi (dimasukkan dalam folder screenshot). 
+Pembagian kerja anggota kelompok. 
+Jumlah jam persiapan dan pengerjaan untuk masing-masing anggota. 
+Kriteria Penilaian 
+Berikut ini aspek dari aplikasi aplikasi piranti bergerak yang akan menjadi penilaian 
+kelompok: 
+1. Security: apakah aplikasi menjaga data pengguna. 
+2. Performance: seberapa cepat atau efisien aplikasi melakukan fungsi. 
+3. Mobility: seberapa mudah aplikasi diinstal, dipelihara, dan didukung. 
+4. Compatibility: bagaimana aplikasi mobile berinteraksi dengan lingkungan. 
+5. Capability: apakah aplikasi dapat menjalankan fiturnya dengan benar. 
+6. Reliability: seberapa stabil aplikasi dalam menjalankan fungsinya. 
+7. Usability: seberapa mudah aplikasi digunakan. 
+8. Charisma: seberapa profesional aplikasi terlihat dan dirasakan. 
+Berikut merupakan kriteria penilaian individu dari tugas besar ini: 
+1. Memilih teknik dan teknologi yang tepat untuk memenuhi spesifikasi. 
+2. Pemahaman terhadap platform Android. 
+3. Kerja sama dan manajemen kelompok. 
+Question and Answer 
+QnA IF3210 MAD 2025/2026
+Link 
+1. SQLite Database Using Anko Kotlin | by Hanif Abdullah | SANDEC | Medium  
+2. Android - Scoped Storage 
+3. Simple GET request using Retrofit in Android | Engineering Education (EngEd) 
+Program | Section 
+4. OWASP 10 Mobile 
+5. Android - Broadcast Overview 
+6. Tutorial Broadcast Receiver 
+7. Osmdroid  
+8. Maplibre  
+9. MapTiler 
+Lampiran 
+Referensi Figma 
+ 
+ 
+ 
+REST API Contract 
+● Gunakan api contract berikut untuk mengembangkan aplikasi ini. 
+● Base url: https://mad.labpro.hmif.dev 
+Login 
+POST /api/login 
+Melakukan autentikasi pengguna menggunakan email dan password, kemudian mengembalikan token JWT yang 
+digunakan untuk mengakses endpoint lain. Gunakan token tersebut untuk header authorization untuk endpoint lain. 
+Login dengan email {NIM}@std.stei.itb.ad.id dan password {NIM}. 
+Authorization - 
+Request Body { 
+  email: string 
+  password: string 
+} 
+Response Body { 
+  "data": { 
+    "token": "jwt", 
+    "expiresAt": "2026-03-15T10:00:00Z", 
+    "user": { 
+      "id": 12, 
+      "nim": "13522084", 
+ 
+ 
+ 
+      "email": "13522084@std.stei.itb.ac.id", 
+      "fullName": "Dhafin Fawwaz Ikramullah" 
+    } 
+  } 
+} 
+Get User Profile 
+GET /api/me 
+Mengambil informasi profil pengguna yang sedang login. 
+Authorization Bearer {token} 
+Request Body  
+Response Body { 
+  "data": { 
+    "id": 12, 
+    "nim": "13522084", 
+    "email": "13522084@std.stei.itb.ac.id", 
+    "fullName": "Dhafin Fawwaz Ikramullah", 
+    "createdAt": "2026-03-15T10:00:00Z", 
+    "updatedAt": "2026-03-15T10:00:00Z" 
+  } 
+} 
+ 
+ 
+ 
+ 
+Update User Profile 
+PATCH /api/me 
+Memperbarui nama lengkap pengguna yang sedang login. 
+Authorization Bearer {token} 
+Request Body {  
+  fullName: string 
+} 
+Response Body { 
+  "data": { 
+    "id": 12, 
+    "nim": "13522084", 
+    "email": "13522084@std.stei.itb.ac.id", 
+    "fullName": "Dhafin Fawwaz Ikramullah", 
+    "createdAt": "2026-03-15T10:00:00Z", 
+    "updatedAt": "2026-03-15T10:00:00Z" 
+  } 
+} 
+ 
+Get All Families 
+GET /api/families 
+Mengambil daftar seluruh family yang tersedia dengan informasi dasar seperti id, nama, icon.. 
+Authorization Bearer {token} 
+ 
+ 
+ 
+Request Body  
+Response Body { 
+  "data": [{ 
+     "id": 41, 
+     "name": "IF3210 Squad", 
+     "iconUrl": "https://mad.labpro.hmif.dev/assets/family_icon_1.png" 
+  }, { 
+     "id": 42, 
+     "name": "IF3210 Squad 2", 
+     "iconUrl": "https://mad.labpro.hmif.dev/assets/family_icon_3.png" 
+  },  
+... 
+ ] 
+} 
+ 
+Get All My Families 
+GET /api/me/families 
+Mengambil daftar family yang diikuti oleh pengguna beserta detail anggota dan family code. 
+Authorization Bearer {token} 
+Request Body  
+Response Body { 
+  "data": [{ 
+  "id": 41, 
+ 
+ 
+ 
+  "name": "IF3210 Squad", 
+  "iconUrl": "https://mad.labpro.hmif.dev/assets/family_icon_1.png", 
+  "familyCode": "ABCDEF", 
+  "createdAt": "2026-03-15T10:00:00Z", 
+  "updatedAt": "2026-03-15T10:00:00Z", 
+  "members": [ 
+    { 
+      "id": 12, 
+      "fullName": "Dhafin Fawwaz Ikramullah", 
+      "email": "13522084@std.stei.itb.ac.id", 
+      "joinedAt": "2026-03-15T10:00:00Z" 
+    } 
+  ] 
+  }, { 
+  "id": 42, 
+  "name": "IF3210 Squad", 
+  "iconUrl": "https://mad.labpro.hmif.dev/assets/family_icon_1.png", 
+  "familyCode": "ABCDEF", 
+  "createdAt": "2026-03-15T10:00:00Z", 
+  "updatedAt": "2026-03-15T10:00:00Z", 
+  "members": [ 
+    { 
+      "id": 12, 
+      "fullName": "Dhafin Fawwaz Ikramullah", 
+      "email": "13522084@std.stei.itb.ac.id", 
+      "joinedAt": "2026-03-15T10:00:00Z" 
+    } 
+  ] 
+  },  
+... 
+ 
+ 
+ 
+] 
+} 
+ 
+Get 5 Random Families 
+GET /api/families/discover 
+Mengambil 5 family secara acak yang belum diikuti oleh pengguna dengan informasi anggota yang telah disensor. 
+Authorization Bearer {token} 
+Request Body  
+Response Body { 
+  "data" : [{  
+      "id": 41, 
+      "name": "IF3210 Squad", 
+      "iconUrl": "https://api-host/assets/family_icon_1.png", 
+      "createdAt": "2026-03-15T10:00:00Z", 
+      "members": [{ 
+          "fullName": "D********* T*********", 
+          "email": "********@std.stei.itb.ac.id" 
+      }] 
+    }   
+  ]  
+} 
+ 
+ 
+ 
+ 
+Get Family Detail by Family Id 
+GET /api/families/:familyId 
+Mengambil detail suatu family beserta daftar anggotanya. Informasi yang ditampilkan bergantung pada apakah 
+pengguna merupakan anggota family tersebut. 
+Authorization Bearer {token} 
+Request Body  
+Response Body { 
+  "data": { 
+    "id": 41, 
+    "name": "IF3210 Squad", 
+    "iconUrl": "https://mad.labpro.hmif.dev/assets/family_icon_1.png", 
+    "isMember": false, 
+    "createdAt": "2026-03-15T10:00:00Z", 
+    "updatedAt": "2026-03-15T10:00:00Z", 
+    "members": [ 
+      { 
+        "fullName": "D********* T*********", 
+        "email": "********@std.stei.itb.ac.id" 
+      } 
+    ] 
+  } 
+} 
+Response Body 
+(alternative) 
+{ 
+  "data": { 
+    "id": 41, 
+ 
+ 
+ 
+    "name": "IF3210 Squad", 
+    "iconUrl": "https://mad.labpro.hmif.dev/assets/family_icon_1.png", 
+    "isMember": true, 
+    "familyCode": "ABC123", 
+    "createdAt": "2026-03-15T10:00:00Z", 
+    "updatedAt": "2026-03-15T10:00:00Z", 
+    "members": [ 
+      { 
+        "fullName": "Dewantoro Triatmojo", 
+        "email": "13522011@std.stei.itb.ac.id" 
+      } 
+    ] 
+  } 
+} 
+ 
+Create a New Family 
+POST /api/families 
+Membuat family baru dengan nama dan icon yang dipilih pengguna. iconUrl yang valid terbatas sesuai spesifikasi 
+sebelumnya. 
+Authorization Bearer {token} 
+Request Body { 
+  name : string, 
+  iconUrl : string 
+} 
+ 
+ 
+ 
+Response Body { 
+  "data": { 
+    "id": 41, 
+    "name": "IF3210 Squad", 
+    "iconUrl": "https://mad.labpro.hmif.dev/assets/family_icon_1.png", 
+    "isMember": true, 
+    "familyCode": "ABC123", 
+    "createdAt": "2026-03-15T10:00:00Z", 
+    "updatedAt": "2026-03-15T10:00:00Z", 
+    "members": [ 
+      { 
+        "fullName": "Dewantoro Triatmojo", 
+        "email": "13522011@std.stei.itb.ac.id" 
+      } 
+    ] 
+  } 
+} 
+ 
+Join Family 
+POST /api/families/join 
+Bergabung ke dalam suatu family dengan menggunakan family ID dan family code yang valid. 
+Authorization Bearer {token} 
+Request Body { 
+  familyId : number 
+  familyCode : string 
+ 
+ 
+ 
+} 
+Response Body { 
+  "data": { 
+    "joined": true 
+  } 
+} 
+ 
+Leave Family 
+POST /api/families/leave 
+Mengeluarkan pengguna dari family yang sedang diikutinya. 
+Authorization Bearer {token} 
+Request Body { 
+  familyId : number 
+} 
+Response Body { 
+  "data": { 
+    "left": true 
+  } 
+} 
+ 
+ 
+ 
+ 
+Websocket Contract 
+● Untuk komunikasi secara realtime, gunakan kontrak websocket berikut. 
+● Endpoint: https://mad.labpro.hmif.dev/ws/live 
+● Auth: Authorization: Bearer <token>  
+● Kirim header authorization bearer pada saat handshake. 
+Ref 
+No. 
+type Request Body Penjelasan 
+Client -> Server Message  
+ ping { 
+  "type": "ping", 
+  "payload": {}, 
+  "timestamp": "2026-03-15T10:00:00Z" 
+} 
+ 
+ update_presence { 
+  "type": "update_presence", 
+  "payload": { 
+    "name": "Dhafin Fawwaz", 
+    "latitude": -6.8915, 
+    "longitude": 107.6107, 
+    "rotation": 120.5, 
+    "batteryLevel": 85, 
+    "isCharging": false, 
+    "internetStatus": "wifi", 
+    "metadata": {} 
+Message ini dikirimkan dari 
+klien ke server setiap detik. 
+ 
+Nantinya, server akan 
+meneruskan message ini ke 
+pengguna lain melalui 
+member_presence_updated
+. 
+ 
+ 
+ 
+ 
+  }, 
+  "timestamp": "2026-03-15T10:00:00Z" 
+} 
+Field rotation adalah dalam 
+format derajat (0-360). 
+ 
+Tidak ada ketentuan untuk 
+format metadata. Isi dari 
+metadata ini dibebaskan 
+untuk kreativitas. 
+Allowed internetStatus: - “wifi” - “mobile” 
+ 
+Ref 
+No. 
+type Response Body  
+Server -> Client Message  
+ pong { 
+  "type": "pong", 
+  "payload": {}, 
+  "timestamp": "2026-03-15T10:00:00Z" 
+} 
+ 
+ member_presence
+_updated 
+{ 
+  "type": "member_presence_updated", 
+  "payload": { 
+    "userId": 12, 
+    "email": "", 
+    "fullName": "Dhafin Fawwaz Ikramullah", 
+    "latitude": -6.8915, 
+Broadcast ke user yang 
+setidaknya satu family 
+dengan sender. 
+  
+ 
+"longitude": 107.6107, 
+"rotation": 120.5, 
+"batteryLevel": 85, 
+"isCharging": false, 
+"internetStatus": "wifi", 
+"metadata": {} 
+Jika informasi suatu user 
+tidak terupdate dalam 5 detik 
+terakhir, user tersebut 
+dianggap offline 
+}, 
+"timestamp": "2026-03-15T10:00:00Z" 
+} 
+�
+�
+Tidak ada ketentuan untuk 
+format metadata. Isi dari 
+metadata ini dibebaskan 
+untuk kreativitas.

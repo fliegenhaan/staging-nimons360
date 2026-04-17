@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.tubes.nimons360.ui.home.HomeFragment"
+        android:label="Beranda"
+        tools:layout="@layout/fragment_placeholder">
+        <action
+            android:id="@+id/action_home_to_familyDetail"
+            app:destination="@id/familyDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.tubes.nimons360.ui.map.MapFragment"
+        android:label="Peta"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/familiesFragment"
+        android:name="com.tubes.nimons360.ui.families.FamiliesFragment"
+        android:label="Keluarga"
+        tools:layout="@layout/fragment_placeholder">
+        <action
+            android:id="@+id/action_families_to_familyDetail"
+            app:destination="@id/familyDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/familyDetailFragment"
+        android:name="com.tubes.nimons360.ui.family_detail.FamilyDetailFragment"
+        android:label="Detail Keluarga"
+        tools:layout="@layout/fragment_placeholder">
+        <argument
+            android:name="familyId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
+</navigation>

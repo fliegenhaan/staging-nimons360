@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Nimons360</string>
+    <string name="tab_home">Beranda</string>
+    <string name="tab_map">Peta</string>
+    <string name="tab_families">Keluarga</string>
+    <string name="action_profile">Profil</string>
+    <string name="create_family">Buat Keluarga</string>
+</resources>
