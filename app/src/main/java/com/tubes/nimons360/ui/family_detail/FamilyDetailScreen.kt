@@ -8,10 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
@@ -30,11 +27,9 @@ import com.tubes.nimons360.ui.theme.Charcoal
 import com.tubes.nimons360.ui.theme.GrayLight
 import com.tubes.nimons360.ui.theme.OrangePrimary
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FamilyDetailScreen(
-    viewModel: FamilyDetailViewModel,
-    onNavigateUp: () -> Unit
+    viewModel: FamilyDetailViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val joinState by viewModel.joinState.collectAsState()
@@ -60,34 +55,7 @@ fun FamilyDetailScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Detail Keluarga") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateUp) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Kembali",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                },
-                actions = {
-                    if (uiState is FamilyDetailUiState.Success) {
-                        val pinned = (uiState as FamilyDetailUiState.Success).isPinned
-                        IconButton(onClick = { viewModel.togglePin() }) {
-                            Icon(
-                                if (pinned) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                                contentDescription = if (pinned) "Hapus tanda" else "Tandai",
-                                tint = if (pinned) OrangePrimary else MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         when (val state = uiState) {
             is FamilyDetailUiState.Loading -> {
                 Box(

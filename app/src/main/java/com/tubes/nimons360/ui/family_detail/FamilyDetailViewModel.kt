@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.tubes.nimons360.Nimons360App
 import com.tubes.nimons360.data.api.RetrofitClient
 import com.tubes.nimons360.data.local.AppDatabase
 import com.tubes.nimons360.data.local.PinnedFamilyEntity
@@ -14,6 +15,7 @@ import com.tubes.nimons360.utils.NetworkUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 sealed class FamilyDetailUiState {
@@ -50,6 +52,13 @@ class FamilyDetailViewModel(
     val leaveState: StateFlow<ActionState> = _leaveState.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            (app.applicationContext as Nimons360App).connectionRestored.filter {
+                _uiState.value is FamilyDetailUiState.Error
+            }.collect {
+                loadDetail()
+            }
+        }
         loadDetail()
     }
 

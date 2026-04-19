@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private var offlineSnackbar: Snackbar? = null
+    private var wasOffline = false
 
     private val createFamilyLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -121,7 +122,8 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             app.networkMonitor.isOnline.collect { isOnline ->
                 if (!isOnline) {
-                    if (offlineSnackbar == null || offlineSnackbar?.isShown == false) {
+                    wasOffline = true
+                    if (offlineSnackbar == null || !offlineSnackbar!!.isShown) {
                         offlineSnackbar = Snackbar.make(
                             binding.root,
                             "Tidak ada koneksi internet",
@@ -134,6 +136,10 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     offlineSnackbar?.dismiss()
                     offlineSnackbar = null
+                    if (wasOffline) {
+                        wasOffline = false
+                        app.emitConnectionRestored()
+                    }
                 }
             }
         }

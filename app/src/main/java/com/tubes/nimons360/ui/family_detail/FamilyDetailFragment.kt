@@ -22,6 +22,11 @@ class FamilyDetailFragment : Fragment() {
         )
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadDetail()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -32,8 +37,7 @@ class FamilyDetailFragment : Fragment() {
             setContent {
                 Nimons360Theme {
                     FamilyDetailScreen(
-                        viewModel = viewModel,
-                        onNavigateUp = { findNavController().popBackStack() }
+                        viewModel = viewModel
                     )
                 }
             }

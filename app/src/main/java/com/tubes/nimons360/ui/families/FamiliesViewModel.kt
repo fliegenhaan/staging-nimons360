@@ -3,6 +3,7 @@ package com.tubes.nimons360.ui.families
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.tubes.nimons360.Nimons360App
 import com.tubes.nimons360.data.api.RetrofitClient
 import com.tubes.nimons360.data.local.AppDatabase
 import com.tubes.nimons360.data.local.PinnedFamilyEntity
@@ -12,7 +13,13 @@ import com.tubes.nimons360.model.MyFamily
 import com.tubes.nimons360.utils.AppResult
 import com.tubes.nimons360.utils.NetworkUtils
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 enum class FilterMode { ALL, MY_FAMILIES }
@@ -62,6 +69,13 @@ class FamiliesViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             repo.getPinnedFamilies().collect { pinned ->
                 _pinnedFamilies.value = pinned
+            }
+        }
+        viewModelScope.launch {
+            (app.applicationContext as Nimons360App).connectionRestored.filter {
+                _uiState.value is FamiliesUiState.Error
+            }.collect {
+                loadData()
             }
         }
         loadData()

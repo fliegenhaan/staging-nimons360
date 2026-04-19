@@ -8,12 +8,21 @@ import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import com.tubes.nimons360.utils.NetworkMonitor
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import okhttp3.OkHttpClient
 import org.osmdroid.config.Configuration
 
 class Nimons360App : Application() {
 
     val networkMonitor: NetworkMonitor by lazy { NetworkMonitor(this) }
+
+    private val _connectionRestored = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val connectionRestored: SharedFlow<Unit> = _connectionRestored
+
+    fun emitConnectionRestored() {
+        _connectionRestored.tryEmit(Unit)
+    }
 
     override fun onCreate() {
         super.onCreate()

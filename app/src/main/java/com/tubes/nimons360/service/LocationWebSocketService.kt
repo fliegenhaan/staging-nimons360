@@ -134,27 +134,25 @@ class LocationWebSocketService : Service() {
     private fun startPresenceLoop() {
         serviceScope.launch {
             while (isActive) {
-                if (LocationState.currentLat != 0.0 || LocationState.currentLon != 0.0) {
-                    val userName = TokenManager.getUserName(this@LocationWebSocketService)
-                        ?: LocationState.cachedUserName
+                val userName = TokenManager.getUserName(this@LocationWebSocketService)
+                    ?: LocationState.cachedUserName
 
-                    val battery = getBatteryInfo()
-                    val payload = PresencePayload(
-                        name = userName,
-                        latitude = LocationState.currentLat,
-                        longitude = LocationState.currentLon,
-                        rotation = LocationState.currentAzimuth,
-                        batteryLevel = battery.first,
-                        isCharging = battery.second,
-                        internetStatus = getInternetStatus()
-                    )
-                    val message = WebSocketOutMessage(
-                        type = "update_presence",
-                        payload = payload,
-                        timestamp = Instant.now().toString()
-                    )
-                    webSocket?.send(gson.toJson(message))
-                }
+                val battery = getBatteryInfo()
+                val payload = PresencePayload(
+                    name = userName,
+                    latitude = LocationState.currentLat,
+                    longitude = LocationState.currentLon,
+                    rotation = LocationState.currentAzimuth,
+                    batteryLevel = battery.first,
+                    isCharging = battery.second,
+                    internetStatus = getInternetStatus()
+                )
+                val message = WebSocketOutMessage(
+                    type = "update_presence",
+                    payload = payload,
+                    timestamp = Instant.now().toString()
+                )
+                webSocket?.send(gson.toJson(message))
                 delay(1000L)
             }
         }

@@ -3,6 +3,7 @@ package com.tubes.nimons360.ui.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.tubes.nimons360.Nimons360App
 import com.tubes.nimons360.data.api.RetrofitClient
 import com.tubes.nimons360.data.local.AppDatabase
 import com.tubes.nimons360.data.repository.FamilyRepository
@@ -15,6 +16,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 sealed class HomeUiState {
     object Loading : HomeUiState()
@@ -37,6 +40,14 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
+        val app = app.applicationContext as Nimons360App
+        viewModelScope.launch {
+            app.connectionRestored.filter {
+                _uiState.value is HomeUiState.Error
+            }.collect {
+                loadData()
+            }
+        }
         loadData()
     }
 

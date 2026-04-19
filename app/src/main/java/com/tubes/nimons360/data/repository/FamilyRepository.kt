@@ -4,6 +4,8 @@ import android.content.Context
 import com.tubes.nimons360.data.api.ApiService
 import com.tubes.nimons360.data.local.PinnedFamilyDao
 import com.tubes.nimons360.data.local.PinnedFamilyEntity
+import com.tubes.nimons360.data.utils.ErrorMessage
+import com.tubes.nimons360.data.utils.FamilyOp
 import com.tubes.nimons360.model.*
 import com.tubes.nimons360.utils.AppResult
 import com.tubes.nimons360.utils.NetworkUtils
@@ -18,9 +20,9 @@ class FamilyRepository(
 
     private fun token() = TokenManager.getBearerToken(context)
 
-    private fun handleCode(code: Int): AppResult.Error {
+    private fun handleCode(code: Int, op: FamilyOp): AppResult.Error {
         if (code == 409) NetworkUtils.handleExpiredToken(context)
-        return AppResult.Error("Request gagal (HTTP $code)", code)
+        return ErrorMessage.familyError(code, op)
     }
 
     suspend fun getMyFamilies(): AppResult<List<MyFamily>> {
@@ -29,10 +31,10 @@ class FamilyRepository(
             if (response.isSuccessful) {
                 AppResult.Success(response.body()?.data ?: emptyList())
             } else {
-                handleCode(response.code())
+                handleCode(response.code(), FamilyOp.GET_LIST)
             }
         } catch (e: Exception) {
-            AppResult.Error(e.message ?: "Terjadi kesalahan")
+            AppResult.Error(ErrorMessage.NETWORK_ERROR)
         }
     }
 
@@ -42,10 +44,10 @@ class FamilyRepository(
             if (response.isSuccessful) {
                 AppResult.Success(response.body()?.data ?: emptyList())
             } else {
-                handleCode(response.code())
+                handleCode(response.code(), FamilyOp.GET_LIST)
             }
         } catch (e: Exception) {
-            AppResult.Error(e.message ?: "Terjadi kesalahan")
+            AppResult.Error(ErrorMessage.NETWORK_ERROR)
         }
     }
 
@@ -55,10 +57,10 @@ class FamilyRepository(
             if (response.isSuccessful) {
                 AppResult.Success(response.body()?.data ?: emptyList())
             } else {
-                handleCode(response.code())
+                handleCode(response.code(), FamilyOp.GET_LIST)
             }
         } catch (e: Exception) {
-            AppResult.Error(e.message ?: "Terjadi kesalahan")
+            AppResult.Error(ErrorMessage.NETWORK_ERROR)
         }
     }
 
@@ -70,10 +72,10 @@ class FamilyRepository(
                 if (data != null) AppResult.Success(data)
                 else AppResult.Error("Data tidak ditemukan")
             } else {
-                handleCode(response.code())
+                handleCode(response.code(), FamilyOp.GET_DETAIL)
             }
         } catch (e: Exception) {
-            AppResult.Error(e.message ?: "Terjadi kesalahan")
+            AppResult.Error(ErrorMessage.NETWORK_ERROR)
         }
     }
 
@@ -85,10 +87,10 @@ class FamilyRepository(
                 if (data != null) AppResult.Success(data)
                 else AppResult.Error("Data tidak ditemukan")
             } else {
-                handleCode(response.code())
+                handleCode(response.code(), FamilyOp.CREATE)
             }
         } catch (e: Exception) {
-            AppResult.Error(e.message ?: "Terjadi kesalahan")
+            AppResult.Error(ErrorMessage.NETWORK_ERROR)
         }
     }
 
@@ -98,10 +100,10 @@ class FamilyRepository(
             if (response.isSuccessful) {
                 AppResult.Success(response.body()?.data?.joined ?: false)
             } else {
-                handleCode(response.code())
+                handleCode(response.code(), FamilyOp.JOIN)
             }
         } catch (e: Exception) {
-            AppResult.Error(e.message ?: "Terjadi kesalahan")
+            AppResult.Error(ErrorMessage.NETWORK_ERROR)
         }
     }
 
@@ -111,10 +113,10 @@ class FamilyRepository(
             if (response.isSuccessful) {
                 AppResult.Success(response.body()?.data?.left ?: false)
             } else {
-                handleCode(response.code())
+                handleCode(response.code(), FamilyOp.LEAVE)
             }
         } catch (e: Exception) {
-            AppResult.Error(e.message ?: "Terjadi kesalahan")
+            AppResult.Error(ErrorMessage.NETWORK_ERROR)
         }
     }
 

@@ -16,6 +16,11 @@ class FamiliesFragment : Fragment() {
 
     private val viewModel: FamiliesViewModel by viewModels()
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadData()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

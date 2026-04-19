@@ -21,13 +21,18 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.tubes.nimons360.R
+import com.tubes.nimons360.data.local.AppDatabase
+import com.tubes.nimons360.data.local.FavouriteLocationEntity
 import com.tubes.nimons360.databinding.FragmentMapBinding
 import com.tubes.nimons360.model.MemberPresence
 import com.tubes.nimons360.service.LocationWebSocketService
 import com.tubes.nimons360.utils.LocationState
 import kotlinx.coroutines.launch
+import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 
 class MapFragment : Fragment() {
@@ -41,6 +46,11 @@ class MapFragment : Fragment() {
     private var currentUserMarker: Marker? = null
     private val memberMarkers = mutableMapOf<Int, Marker>()
     private val lastUpdateMap = mutableMapOf<Int, Long>()
+
+    private val favouriteDao by lazy {
+        AppDatabase.getDatabase(requireContext()).favouriteLocationDao()
+    }
+    private val favouriteMarkers = mutableMapOf<Int, Marker>()
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -73,6 +83,9 @@ class MapFragment : Fragment() {
             LocationState.currentLat = location.latitude
             LocationState.currentLon = location.longitude
             updateCurrentUserMarker(location.latitude, location.longitude)
+            binding.mapView.controller.animateTo(
+                GeoPoint(location.latitude, location.longitude)
+            )
         }
         @Deprecated("Deprecated in Java")
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
@@ -108,6 +121,7 @@ class MapFragment : Fragment() {
         setupMap()
         checkLocationPermission()
         observeWebSocketUpdates()
+        loadFavouriteMarkers()
 
         binding.fabRecenter.setOnClickListener {
             if (LocationState.currentLat != 0.0) {
@@ -123,11 +137,29 @@ class MapFragment : Fragment() {
             userAgentValue = requireContext().packageName
             osmdroidTileCache = java.io.File(requireContext().cacheDir, "osmdroid")
         }
+        val defaultLat = LocationState.currentLat.coerceIn(-90.0, 90.0)
+        val defaultLon = LocationState.currentLon.coerceIn(-180.0, 180.0)
+        val centerPoint = if (defaultLat == 0.0 && defaultLon == 0.0) {
+            GeoPoint(-6.8915, 107.6107)
+        } else {
+            GeoPoint(defaultLat, defaultLon)
+        }
         binding.mapView.apply {
             setTileSource(TileSourceFactory.MAPNIK)
             setMultiTouchControls(true)
             controller.setZoom(15.0)
-            controller.setCenter(GeoPoint(-6.8915, 107.6107)) // ITB default
+            controller.setCenter(centerPoint)
+
+            val mapEventsReceiver = object : MapEventsReceiver {
+                override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean = false
+                override fun longPressHelper(p: GeoPoint?): Boolean {
+                    p ?: return false
+                    SaveFavouriteBottomSheet.newInstance(p.latitude, p.longitude)
+                        .show(parentFragmentManager, "save_favourite")
+                    return true
+                }
+            }
+            overlays.add(0, MapEventsOverlay(mapEventsReceiver))
         }
     }
 
@@ -189,6 +221,7 @@ class MapFragment : Fragment() {
         if (currentUserMarker == null) {
             currentUserMarker = Marker(map).apply {
                 title = "Saya"
+                icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_marker_user)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
             }
             map.overlays.add(currentUserMarker)
@@ -203,6 +236,7 @@ class MapFragment : Fragment() {
 
         val marker = memberMarkers.getOrPut(presence.userId) {
             Marker(map).apply {
+                icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_marker_member)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 map.overlays.add(this)
             }
@@ -238,6 +272,46 @@ class MapFragment : Fragment() {
                 removeStaleMarkers()
             }
         }
+    }
+
+    private fun loadFavouriteMarkers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            favouriteDao.getAll().collect { favourites ->
+                val currentIds = favourites.map { it.id }.toSet()
+                favouriteMarkers.keys.filter { it !in currentIds }.forEach { id ->
+                    favouriteMarkers.remove(id)?.let { binding.mapView.overlays.remove(it) }
+                    binding.mapView.invalidate()
+                }
+                favourites.forEach { fav ->
+                    if (fav.id !in favouriteMarkers) {
+                        addFavouriteMarker(fav)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addFavouriteMarker(fav: FavouriteLocationEntity) {
+        val marker = Marker(binding.mapView).apply {
+            position = GeoPoint(fav.latitude, fav.longitude)
+            icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_marker_favourite)
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            title = fav.name
+            setOnMarkerClickListener { _, _ ->
+                val sheet = FavouriteInfoBottomSheet.newInstance(fav.id, fav.name)
+                sheet.setOnDeletedListener {
+                    favouriteMarkers.remove(fav.id)?.let { m ->
+                        binding.mapView.overlays.remove(m)
+                        binding.mapView.invalidate()
+                    }
+                }
+                sheet.show(parentFragmentManager, "fav_info")
+                true
+            }
+        }
+        favouriteMarkers[fav.id] = marker
+        binding.mapView.overlays.add(marker)
+        binding.mapView.invalidate()
     }
 
     override fun onResume() {

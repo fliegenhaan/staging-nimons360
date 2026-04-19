@@ -19,11 +19,11 @@ class NetworkMonitor(private val context: Context) {
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            _isOnline.value = true
+            _isOnline.value = NetworkUtils.isConnected(context)
         }
 
         override fun onLost(network: Network) {
-            _isOnline.value = NetworkUtils.isConnected(context)
+            _isOnline.value = false
         }
 
         override fun onCapabilitiesChanged(
@@ -32,7 +32,7 @@ class NetworkMonitor(private val context: Context) {
         ) {
             _isOnline.value = networkCapabilities.hasCapability(
                 NetworkCapabilities.NET_CAPABILITY_INTERNET
-            )
+            ) && NetworkUtils.isConnected(context)
         }
     }
 

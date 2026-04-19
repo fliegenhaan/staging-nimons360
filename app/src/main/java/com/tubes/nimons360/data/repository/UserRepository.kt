@@ -2,6 +2,8 @@ package com.tubes.nimons360.data.repository
 
 import android.content.Context
 import com.tubes.nimons360.data.api.ApiService
+import com.tubes.nimons360.data.utils.ErrorMessage
+import com.tubes.nimons360.data.utils.UserOp
 import com.tubes.nimons360.model.UpdateNameRequest
 import com.tubes.nimons360.model.UserDetail
 import com.tubes.nimons360.utils.AppResult
@@ -15,9 +17,9 @@ class UserRepository(
 
     private fun token() = TokenManager.getBearerToken(context)
 
-    private fun handleCode(code: Int): AppResult.Error {
+    private fun handleCode(code: Int, op: UserOp): AppResult.Error {
         if (code == 409) NetworkUtils.handleExpiredToken(context)
-        return AppResult.Error("Request gagal (HTTP $code)", code)
+        return ErrorMessage.userError(code, op)
     }
 
     suspend fun getMe(): AppResult<UserDetail> {
@@ -28,10 +30,10 @@ class UserRepository(
                 if (data != null) AppResult.Success(data)
                 else AppResult.Error("Data tidak ditemukan")
             } else {
-                handleCode(response.code())
+                handleCode(response.code(), UserOp.GET_PROFILE)
             }
         } catch (e: Exception) {
-            AppResult.Error(e.message ?: "Terjadi kesalahan")
+            AppResult.Error(ErrorMessage.NETWORK_ERROR)
         }
     }
 
@@ -43,10 +45,10 @@ class UserRepository(
                 if (data != null) AppResult.Success(data)
                 else AppResult.Error("Data tidak ditemukan")
             } else {
-                handleCode(response.code())
+                handleCode(response.code(), UserOp.UPDATE_NAME)
             }
         } catch (e: Exception) {
-            AppResult.Error(e.message ?: "Terjadi kesalahan")
+            AppResult.Error(ErrorMessage.NETWORK_ERROR)
         }
     }
 }

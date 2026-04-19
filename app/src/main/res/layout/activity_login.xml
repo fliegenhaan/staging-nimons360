@@ -14,10 +14,11 @@
         android:minHeight="600dp">
 
         <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@mipmap/ic_launcher"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:src="@drawable/logo_nimons360"
             android:contentDescription="Nimons360 logo"
+            android:scaleType="fitCenter"
             android:layout_marginBottom="12dp"/>
 
         <TextView

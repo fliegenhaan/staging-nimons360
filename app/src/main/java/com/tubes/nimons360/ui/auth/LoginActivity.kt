@@ -63,13 +63,13 @@ class LoginActivity : AppCompatActivity() {
                         }
                         goToMain()
                     } else {
-                        showError("Login gagal, coba lagi.")
+                        showError("Login gagal. Pastikan email dan password benar.")
                     }
                 } else {
                     when (response.code()) {
                         401, 409 -> showError("Email atau password salah.")
                         500 -> showError("Server sedang bermasalah, coba lagi nanti.")
-                        else -> showError("Login gagal (${response.code()}).")
+                        else -> showError("Login gagal. Coba lagi nanti.")
                     }
                 }
             } catch (e: Exception) {
